@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
+
+public partial class WorldMapForm : Form
+{
+    private Dictionary<string, Rectangle> kingdomRectangles = new Dictionary<string, Rectangle>();
+    private Dictionary<string, Color> kingdomColors = new Dictionary<string, Color>();
+    private Dictionary<string, string> kingdomDiplomacy = new Dictionary<string, string>(); // Add diplomacy tracking
+    private Random random = new Random();
+
+    public WorldMapForm()
+    {
+        InitializeComponent();
+        InitializeWorldMap();
+        DoubleBuffered = true; // Prevents flickering.
+    }
+
+    private void InitializeWorldMap()
+    {
+        // Define kingdom locations and sizes (adjust as needed).
+        kingdomRectangles.Add("Veridia", new Rectangle(50, 50, 100, 80));
+        kingdomRectangles.Add("Grimstad", new Rectangle(200, 100, 90, 70));
+        kingdomRectangles.Add("Sylvanos", new Rectangle(350, 200, 110, 90));
+        kingdomRectangles.Add("Port Azure", new Rectangle(500, 50, 120, 85));
+        kingdomRectangles.Add("Khaganate", new Rectangle(650, 150, 100, 75));
+
+        // Assign initial colors (adjust as needed).
+        kingdomColors.Add("Veridia", Color.LightBlue);
+        kingdomColors.Add("Grimstad", Color.Gray);
+        kingdomColors.Add("Sylvanos", Color.Green);
+        kingdomColors.Add("Port Azure", Color.Gold);
+        kingdomColors.Add("Khaganate", Color.SandyBrown);
+
+        // Assign initial diplomacy (adjust as needed).
+        kingdomDiplomacy.Add("Veridia", "Neutral");
+        kingdomDiplomacy.Add("Grimstad", "Aggressive");
+        kingdomDiplomacy.Add("Sylvanos", "Defensive");
+        kingdomDiplomacy.Add("Port Azure", "Opportunistic");
+        kingdomDiplomacy.Add("Khaganate", "Adaptive");
+    }
+
+    private void WorldMapForm_Paint(object sender, PaintEventArgs e)
+    {
+        Graphics g = e.Graphics;
+
+        // Draw kingdom rectangles.
+        foreach (var kingdom in kingdomRectangles)
+        {
+            g.FillRectangle(new SolidBrush(kingdomColors[kingdom.Key]), kingdom.Value);
+            g.DrawRectangle(Pens.Black, kingdom.Value);
+            g.DrawString(kingdom.Key, Font, Brushes.Black, kingdom.Value.X, kingdom.Value.Y); // Draw kingdom names
+            g.DrawString($"Diplomacy: {kingdomDiplomacy[kingdom.Key]}", new Font("Arial", 8), Brushes.Black, kingdom.Value.X, kingdom.Value.Y + 15); // Draw diplo
+        }
+    }
+
+    private void AttackKingdom(string attacker, string defender)
+    {
+        // Example attack logic (replace with your game's rules).
+        if (kingdomDiplomacy[attacker] == "Aggressive" || kingdomDiplomacy[attacker] == "Opportunistic")
+        {
+            if (random.NextDouble() < 0.5) // 50% chance of success (adjust as needed).
+            {
+                MessageBox.Show($"{attacker} successfully attacked {defender}!");
+                // Example: Change defender's color to indicate occupation.
+                kingdomColors[defender] = Color.Red;
+                kingdomDiplomacy[defender] = "Occupied";
+                Invalidate(); // Redraw the map.
+            }
+            else
+            {
+                MessageBox.Show($"{attacker}'s attack on {defender} failed!");
+            }
+        }
+        else
+        {
+            MessageBox.Show($"{attacker} cannot attack {defender} due to their diplomacy.");
+        }
+    }
+
+    private void WorldMapForm_MouseClick(object sender, MouseEventArgs e)
+    {
+        // Detect clicks on kingdoms.
+        string clickedKingdom = null;
+        foreach (var kingdom in kingdomRectangles)
+        {
+            if (kingdom.Value.Contains(e.Location))
+            {
+                clickedKingdom = kingdom.Key;
+                break;
+            }
+        }
+
+        if (clickedKingdom != null)
+        {
+            // Example: Show a context menu with options (e.g., attack).
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+            ToolStripMenuItem attackItem = new ToolStripMenuItem("Attack");
+            attackItem.Click += (s, args) =>
+            {
+                // Example: Assume "Veridia" is the attacker (replace with player's selection logic).
+                AttackKingdom("Veridia", clickedKingdom);
+            };
+            contextMenu.Items.Add(attackItem);
+            contextMenu.Show(this, e.Location);
+        }
+    }
+
+    private void InitializeComponent()
+    {
+        this.SuspendLayout();
+        //
+        // WorldMapForm
+        //
+        this.ClientSize = new System.Drawing.Size(800, 600);
+        this.Name = "WorldMapForm";
+        this.Paint += new System.Windows.Forms.PaintEventHandler(this.WorldMapForm_Paint);
+        this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.WorldMapForm_MouseClick);
+        this.ResumeLayout(false);
+
+    }
+}
