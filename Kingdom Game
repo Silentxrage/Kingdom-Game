@@ -1,0 +1,162 @@
+using System;
+using System.Collections.Generic;
+
+public class Kingdom
+{
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public Dictionary<string, int> Resources { get; set; }
+    public List<string> Units { get; set; }
+    public List<string> Technology { get; set; }
+    public string Diplomacy { get; set; }
+    public int Territory { get; set; }
+
+    public Kingdom(string name, string description, Dictionary<string, int> resources, List<string> units, List<string> technology, string diplomacy)
+    {
+        Name = name;
+        Description = description;
+        Resources = resources;
+        Units = units;
+        Technology = technology;
+        Diplomacy = diplomacy;
+        Territory = 0;
+    }
+
+    public override string ToString()
+    {
+        string resourcesString = "";
+        foreach (var resource in Resources)
+        {
+            resourcesString += $"{resource.Key}: {resource.Value}, ";
+        }
+        resourcesString = resourcesString.TrimEnd(',', ' '); // Remove trailing comma and space.
+
+        return $"{Name}: {Description}\nResources: {resourcesString}\nUnits: {string.Join(", ", Units)}\nTech: {string.Join(", ", Technology)}\nDiplomacy: {Diplomacy}\nTerritory: {Territory}";
+    }
+}
+
+public class GameState
+{
+    public List<Kingdom> Kingdoms { get; set; }
+    public int ResonanceLevel { get; set; }
+    public int WhisperingPlagueSpread { get; set; }
+    public bool GuardiansActive { get; set; }
+    public bool GuardiansSongDiscovered { get; set; }
+    public int ResonantUprisingStrength { get; set; }
+    private Random random = new Random();
+
+    public GameState(List<Kingdom> kingdoms)
+    {
+        Kingdoms = kingdoms;
+        ResonanceLevel = 0;
+        WhisperingPlagueSpread = 0;
+        GuardiansActive = false;
+        GuardiansSongDiscovered = false;
+        ResonantUprisingStrength = 0;
+    }
+
+    public void TriggerResonance()
+    {
+        ResonanceLevel += random.Next(1, 11);
+        Console.WriteLine($"The Resonance intensifies! Level: {ResonanceLevel}");
+        // Add resonance effects here (e.g., resource fluctuations, unit buffs/debuffs)
+    }
+
+    public void SpreadPlague()
+    {
+        WhisperingPlagueSpread += random.Next(0, 6);
+        Console.WriteLine($"The Whispering Plague spreads! Spread: {WhisperingPlagueSpread}");
+        // Add plague effects here (e.g., unit losses, diplomacy penalties)
+    }
+
+    public void AwakenGuardians()
+    {
+        if (random.NextDouble() < 0.2)
+        {
+            GuardiansActive = true;
+            Console.WriteLine("The Guardians awaken!");
+        }
+        else
+        {
+            Console.WriteLine("The Guardians remain dormant.");
+        }
+    }
+
+    public void DiscoverGuardianSong()
+    {
+        if (random.NextDouble() < 0.1)
+        {
+            GuardiansSongDiscovered = true;
+            Console.WriteLine("The Guardian's Song has been discovered!");
+        }
+        else
+        {
+            Console.WriteLine("The Guardian's Song remains hidden.");
+        }
+    }
+
+    public void ResonantUprisingEvent()
+    {
+        if (random.NextDouble() < 0.3)
+        {
+            ResonantUprisingStrength += random.Next(1, 4);
+            Console.WriteLine($"The Resonant Uprising grows stronger! Strength: {ResonantUprisingStrength}");
+        }
+        else
+        {
+            Console.WriteLine("The Resonant Uprising remains subdued.");
+        }
+    }
+
+    public void DisplayGameState()
+    {
+        Console.WriteLine("\n--- Game State ---");
+        Console.WriteLine($"Resonance Level: {ResonanceLevel}");
+        Console.WriteLine($"Whispering Plague Spread: {WhisperingPlagueSpread}");
+        Console.WriteLine($"Guardians Active: {GuardiansActive}");
+        Console.WriteLine($"Guardian's Song Discovered: {GuardiansSongDiscovered}");
+        Console.WriteLine($"Resonant Uprising Strength: {ResonantUprisingStrength}");
+        foreach (var kingdom in Kingdoms)
+        {
+            Console.WriteLine(kingdom);
+        }
+        Console.WriteLine("-------------------\n");
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        List<Kingdom> kingdoms = new List<Kingdom>
+        {
+            new Kingdom("Veridia", "Technocratic theocracy.", new Dictionary<string, int> { { "Aetherium", 100 }, { "SolarTech", 50 } }, new List<string> { "Solar Legion", "Purifier" }, new List<string> { "Aetherium Reactors", "Holy Light" }, "Neutral"),
+            new Kingdom("Grimstad", "Militaristic mountain clans.", new Dictionary<string, int> { { "Aetherium", 80 }, { "Iron", 70 } }, new List<string> { "Siege Engines", "Ironclad Warriors" }, new List<string> { "Heavy Artillery", "Industrial Forges" }, "Aggressive"),
+            new Kingdom("Sylvanos", "Nature-worshipping kingdom.", new Dictionary<string, int> { { "Aetherium", 90 }, { "NatureEssence", 60 } }, new List<string> { "Forest Spirits", "Druids" }, new List<string> { "Nature Manipulation", "Ancient Summons" }, "Defensive"),
+            new Kingdom("Port Azure", "Wealthy merchant republic.", new Dictionary<string, int> { { "Aetherium", 110 }, { "Gold", 90 } }, new List<string> { "Mercenary Companies", "Spy Networks" }, new List<string> { "Trade Routes", "Black Market" }, "Opportunistic"),
+            new Kingdom("Khaganate", "Nomadic desert tribes.", new Dictionary<string, int> { { "Aetherium", 70 }, { "SandTech", 80 } }, new List<string> { "Sand Riders", "Guerilla Units" }, new List<string> { "Ancient Aetherium Tech", "Desert Survival" }, "Adaptive")
+        };
+
+        GameState gameState = new GameState(kingdoms);
+
+        for (int turn = 0; turn < 10; turn++)
+        {
+            Console.WriteLine($"--- Turn {turn + 1} ---");
+            gameState.TriggerResonance();
+            gameState.SpreadPlague();
+            gameState.AwakenGuardians();
+            gameState.DiscoverGuardianSong();
+            gameState.ResonantUprisingEvent();
+            gameState.DisplayGameState();
+
+            // Example of a simple kingdom resource gain.
+            foreach (var kingdom in gameState.Kingdoms)
+            {
+                foreach (var resource in kingdom.Resources.Keys)
+                {
+                    kingdom.Resources[resource] += gameState.random.Next(0, 6);
+                }
+            }
+        }
+    }
+}
